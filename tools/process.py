@@ -90,12 +90,15 @@ def combine(src, src_path):
     if height != sibling.shape[0] or width != sibling.shape[1]:
         raise Exception("differing sizes")
     
-    # convert both images to RGB if necessary
-    if src.shape[2] == 1:
-        src = im.grayscale_to_rgb(images=src)
+    # convert both images to grayscale if necessary
+    # Also ensure they are 16 bit integers
+    if src.shape[2] != 1:
+        src = im.rgb_to_grayscale(images=src)
+        src = tf.image.convert_image_dtype(src, dtype=tf.uint16, saturate=True)
 
-    if sibling.shape[2] == 1:
-        sibling = im.grayscale_to_rgb(images=sibling)
+    if sibling.shape[2] != 1:
+        sibling = im.rgb_to_grayscale(images=sibling)
+        sibling = tf.image.convert_image_dtype(sibling, dtype=tf.uint16, saturate=True)
 
     # remove alpha channel
     if src.shape[2] == 4:
