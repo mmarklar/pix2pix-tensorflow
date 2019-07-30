@@ -40,6 +40,7 @@ decode_jpeg = create_op(
 decode_png = create_op(
     func=tf.image.decode_png,
     contents=tf.placeholder(tf.string),
+    dtype=tf.uint16,
 )
 
 rgb_to_grayscale = create_op(
@@ -59,7 +60,7 @@ encode_jpeg = create_op(
 
 encode_png = create_op(
     func=tf.image.encode_png,
-    image=tf.placeholder(tf.uint8),
+    image=tf.placeholder(tf.uint16),
 )
 
 crop = create_op(
@@ -87,9 +88,16 @@ to_uint8 = create_op(
     saturate=True,
 )
 
+to_uint16 = create_op(
+    func=tf.image.convert_image_dtype,
+    image=tf.placeholder(tf.float32),
+    dtype=tf.uint16,
+    saturate=True,
+)
+
 to_float32 = create_op(
     func=tf.image.convert_image_dtype,
-    image=tf.placeholder(tf.uint8),
+    image=tf.placeholder(tf.uint16),
     dtype=tf.float32,
 )
 
@@ -122,7 +130,8 @@ def find(d):
 
 def save(image, path, replace=False):
     _, ext = os.path.splitext(path.lower())
-    image = to_uint8(image=image)
+    # Convert the image to 16bit grayscale
+    image = to_uint16(image=image)
     if ext == ".jpg":
         encoded = encode_jpeg(image=image)
     elif ext == ".png":
