@@ -114,10 +114,12 @@ def check_image(image):
     if image.get_shape().ndims not in (3, 4):
         raise ValueError("image must be either 3 or 4 dimensions")
 
+    # DMD removed because it seems to force a dependency on RGB and we want grayscale.
+    # Not positive what it is doing which is why its commented out
     # make the last dimension 3 so that you can unstack the colors
-    shape = list(image.get_shape())
-    shape[-1] = 3
-    image.set_shape(shape)
+    #shape = list(image.get_shape())
+    #shape[-1] = 3
+    #image.set_shape(shape)
     return image
 
 def load_examples():
@@ -448,6 +450,7 @@ def main():
     with open(os.path.join(a.output_dir, "options.json"), "w") as f:
         f.write(json.dumps(vars(a), sort_keys=True, indent=4))
 
+    # TODO: Does this have a dependency on RGB images? Not concerned with export yet
     if a.mode == "export":
         # export the generator to a meta graph that can be imported later for standalone generation
         input = tf.placeholder(tf.string, shape=[1])
@@ -518,7 +521,8 @@ def main():
             size = [CROP_SIZE, int(round(CROP_SIZE * a.aspect_ratio))]
             image = tf.image.resize_images(image, size=size, method=tf.image.ResizeMethod.BICUBIC)
 
-        return tf.image.convert_image_dtype(image, dtype=tf.uint8, saturate=True)
+        # Output in 16 bits
+        return tf.image.convert_image_dtype(image, dtype=tf.uint16, saturate=True)
 
     # reverse any processing on images so they can be written to disk or displayed to user
     with tf.name_scope("convert_inputs"):
@@ -539,6 +543,8 @@ def main():
         }
 
     # summaries
+    # Image summaries don't work with uint16?
+    '''
     with tf.name_scope("inputs_summary"):
         tf.summary.image("inputs", converted_inputs)
 
@@ -547,6 +553,7 @@ def main():
 
     with tf.name_scope("outputs_summary"):
         tf.summary.image("outputs", converted_outputs)
+    '''
 
     with tf.name_scope("predict_real_summary"):
         tf.summary.image("predict_real", tf.image.convert_image_dtype(model.predict_real, dtype=tf.uint8))
