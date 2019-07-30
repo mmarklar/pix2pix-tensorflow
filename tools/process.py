@@ -94,11 +94,9 @@ def combine(src, src_path):
     # Also ensure they are 16 bit integers
     if src.shape[2] != 1:
         src = im.rgb_to_grayscale(images=src)
-        src = tf.image.convert_image_dtype(src, dtype=tf.uint16, saturate=True)
 
     if sibling.shape[2] != 1:
         sibling = im.rgb_to_grayscale(images=sibling)
-        sibling = tf.image.convert_image_dtype(sibling, dtype=tf.uint16, saturate=True)
 
     # remove alpha channel
     if src.shape[2] == 4:
