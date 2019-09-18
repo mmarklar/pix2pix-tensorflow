@@ -1,3 +1,6 @@
+To get it working on GPU: 
+`export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64"`
+
 # pix2pix-tensorflow
 
 Based on [pix2pix](https://phillipi.github.io/pix2pix/) by Isola et al.
